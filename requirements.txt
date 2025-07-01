@@ -1,0 +1,5 @@
+python-telegram-bot == 22.2
+kubernetes == 33.1.0
+python-dotenv == 1.1.1
+dynaconf == 3.2.11
+emoji == 2.14.1

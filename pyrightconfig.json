@@ -1,0 +1,21 @@
+{
+  "venv": ".venv",
+  "venvPath": ".",
+  "include": ["web"],
+  "defineConstant": {
+    "DEBUG": true
+  },
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false,
+  "reportPossiblyUnboundVariable": true,
+  "reportMissingTypeArgument": "error",
+  "reportUnboundVariable": "error",
+  "pythonVersion": "3.11",
+  "typeCheckingMode": "basic",
+  "reportUnknownParameterType": true,
+  "executionEnvironments": [
+    {
+      "root": "web"
+    }
+  ]
+}
