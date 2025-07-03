@@ -1,7 +1,7 @@
 {
   "venv": ".venv",
   "venvPath": ".",
-  "include": ["web"],
+  "include": ["app"],
   "defineConstant": {
     "DEBUG": true
   },
@@ -10,12 +10,12 @@
   "reportPossiblyUnboundVariable": true,
   "reportMissingTypeArgument": "error",
   "reportUnboundVariable": "error",
-  "pythonVersion": "3.11",
+  "pythonVersion": "3.12",
   "typeCheckingMode": "basic",
   "reportUnknownParameterType": true,
   "executionEnvironments": [
     {
-      "root": "web"
+      "root": "app"
     }
   ]
 }
