@@ -43,7 +43,7 @@ async def pod_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"Olá {user}! Listando pods no namespace: {namespace}")
 
     try:
-        pods = get_pods(namespace)
+        pods, _ = get_pods(namespace)
         for pod in pods:
             keyboard = [
                 [InlineKeyboardButton("Restart", callback_data=f"restart|{pod.ns}|{pod.name}")]
