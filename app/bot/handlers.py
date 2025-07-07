@@ -17,7 +17,7 @@ async def callback_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if query.data.startswith("restart"):
         try:
             _, namespace, pod_name = query.data.split("|")
-            delete_pods(namespace=namespace, label=pod_name)
+            delete_pods(namespace=namespace, pod_name=pod_name)
             await query.edit_message_text(f"Pod {pod_name} reiniciado!", parse_mode="Markdown")
 
         except Exception as e:
