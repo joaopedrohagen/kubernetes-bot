@@ -1,6 +1,7 @@
 from os import name
 from typing import List, NamedTuple
 from kubernetes import client, config
+from kubernetes.client import ApiException
 from app.utils.logger import logger
 
 class PodInfo(NamedTuple):
@@ -43,13 +44,22 @@ def delete_pods(namespace: str, label: str):
         ) for pod in pods.items
     ]
 
-    print(pods)
-
     if not pod_list:
-        logger.error(f"Nenhum pod encontrado com a label 'app={label}' no namespace {namespace}")
+        logger.warning(
+            f"Nenhum pod encontrado com a label app={label}."
+            f"Tentando deletar recurso único {label}."
+        )
+
+        try:
+            v1.delete_namespaced_pod(namespace=namespace, name=label)
+        except ApiException as e:
+            logger.error(f"Falha ao deletar {label}: {e.reason}")
         return
 
     for pod in pod_list:
-        v1.delete_namespaced_pod(namespace=pod.ns, name=pod.name)
-        logger.info(f"Deletando pod: {pod.ns}/{pod.name}")
+        try:
+            v1.delete_namespaced_pod(namespace=pod.ns, name=pod.name)
+            logger.info(f"Deletando pod {pod.name}.")
+        except ApiException as e:
+            logger.error(f"Falha ao deletar {pod.ns}/{pod.name}: {e.reason}")
 
