@@ -15,20 +15,26 @@ Este é um bot para Telegram que integra a API do Kubernetes para **reiniciar** 
 
 ```bash
 /pod_status <namespace>
+/list_secrets <namespace>
 ```
 
 Exemplo:
 
 ```bash
 /pod_status prod
+/list_secrets dev
 ```
 
-O bot vai listar os pods do namespace `prod` e incluirá um botão `Restart` para cada um.
+O bot vai listar os recursos do namespace `prod` e dará as opções com botões para cada um.
 
 ### Reiniciar um pod
 
 - Clique no botão **"Restart"** abaixo da mensagem do pod desejado.
 - O pod será deletado via API do Kubernetes (ele será recriado automaticamente se houver um ReplicaSet ou Deployment).
+
+### Visualizar logs
+- Clique no botão **"Logs"** abaixo da mensagem do pod.
+- Serão retornados os logs do serviço selecionado.
 
 ---
 
@@ -53,7 +59,7 @@ TELEGRAM_BOT_TOKEN=<seu_token_do_bot>
 
 ```bash
 git clone https://github.com/joaopedrohagen/kubernetes-bot.git
-cd kubernetes-bot.git
+cd kubernetes-bot
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -66,13 +72,6 @@ pip install -r requirements.txt
 ```bash
 python -m app.main
 ```
-
----
-
-## Tecnologias utilizadas
-
-- [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot)
-- [Kubernetes Python client](https://github.com/kubernetes-client/python)
 
 ---
 
