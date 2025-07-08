@@ -1,9 +1,9 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from telegram.helpers import escape_markdown
-from app.services.kubernetes import get_pods, delete_pods, pod_logs
+from app.services.kubernetes import get_pods, delete_pods, pod_logs, get_secrets, get_secrets_data
 from app.utils.logger import logger
-
+from base64 import b64decode
 class CustomBotError(Exception):
     pass
 
@@ -58,17 +58,47 @@ async def callback_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
 
         except Exception as e:
-            logger.error(f"Erro ao retornar logs!")
+            logger.error("Erro ao retornar logs!")
             await context.bot.send_message(chat_id=chat_id, text="🔴 Erro ao recuperar log!", parse_mode="Markdown")
 
+    if query.data.startswith("secrets"):
+        try:
+            _, namespace, secret_name = query.data.split("|")
+            secret = get_secrets_data(secret_name, namespace)
+
+            if not secret:
+                await context.bot.send_message(chat_id=chat_id, text="🟡 Nenhuma secret encontrada!", parse_mode="Markdown")
+
+            lines = [f"{k}={v}" for k, v in secret.items()]
+            joined = "\n".join(lines)
+            escaped = escape_markdown(joined, version=2)
+            data = f"```env\n{escaped}```"
+
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text=f"Recuperando as secrets de {secret_name}",
+                parse_mode="Markdown"
+            )
+
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text=data,
+                parse_mode="MarkdownV2"
+            )
+
+        except Exception as e:
+            logger.error("Erro ao retornar secrets!")
+            await context.bot.send_message(chat_id=chat_id, text="🔴 Erro ao recuperar secret!", parse_mode="Markdown")
+
+
 async def pod_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not update.effective_user:
-        raise CustomBotError("Usuário não encontrado")
+    # if not update.effective_user:
+    #     raise CustomBotError("Usuário não encontrado")
 
     if not update.message:
         raise CustomBotError("Mensagem não encontrada")
 
-    user = update.effective_user.first_name
+    # user = update.effective_user.first_name
     args = context.args
 
     if not args:
@@ -76,10 +106,7 @@ async def pod_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     namespace = args[0]
-    await update.message.reply_text(
-        f"Olá {user}! 😄 \n"
-        f"Listando pods no namespace {namespace}..."
-    )
+    await update.message.reply_text(f"Listando pods no namespace {namespace}...")
 
     try:
         pods = get_pods(namespace)
@@ -97,3 +124,33 @@ async def pod_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logger.error(f"Erro ao buscar pods: {e}")
         await update.message.reply_text("🔴 Erro ao buscar os pods.")
+
+async def list_secrets(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not update.message:
+        raise CustomBotError("Mensagem não encontrada")
+
+    args = context.args
+    if not args:
+        await update.message.reply_text("🟡 Você não passou nenhum namespace.")
+        return
+
+    namespace = args[0]
+
+    await update.message.reply_text(f"Listando secrets no namespace {namespace}")
+
+    try:
+        secrets = get_secrets(namespace)
+        for secret in secrets:
+            keyboard = [
+                [
+                    InlineKeyboardButton("Secrets 🔐", callback_data=f"secrets|{secret.ns}|{secret.name}")
+                ]
+            ]
+
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            await update.message.reply_text(f"Secret: {secret.name}\nNamespace: {secret.ns}", reply_markup=reply_markup)
+
+    except Exception as e:
+        logger.error(f"Erro ao buscar secret: {e}")
+        await update.message.reply_text("🔴 Erro ao buscar as secrets.")
+
