@@ -39,3 +39,17 @@ def delete_pods(namespace: str, pod_name: str):
         logger.info(f"Deletando pod {pod_name}.")
     except ApiException as e:
         logger.error(f"Falha ao deletar {namespace}/{pod_name}: {e.reason}")
+
+def pod_logs(namespace: str, pod_name: str) -> Any:
+    v1 = client.CoreV1Api()
+
+    try:
+        logs = v1.read_namespaced_pod_log(namespace=namespace, name=pod_name, tail_lines=300)
+        logger.info(f"Retornando log de {pod_name}")
+
+        return logs
+
+    except ApiException as e:
+        logger.error(f"Falha ao recuperar log do {pod_name}: {e.body}")
+
+        return None
