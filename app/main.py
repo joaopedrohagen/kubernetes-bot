@@ -1,4 +1,3 @@
-from turtle import update
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler
 from app.bot.commands import UserCommands
 from app.bot.callback_router import Callbacks
