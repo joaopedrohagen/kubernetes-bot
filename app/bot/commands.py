@@ -1,6 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
-from app.services.kubernetes import get_pods, get_secrets
+from app.services.kube_client import kube_client as kube
 from app.utils.logger import logger
 from app.bot.exceptions import MissingMessage, MissingArgs
 
@@ -22,7 +22,7 @@ class UserCommands:
     await self.update.message.reply_text(f"Listando pods no namespace {namespace}...")
 
     try:
-      pods = get_pods(namespace)
+      pods = kube.get_pods(namespace)
 
       for pod in pods:
         keyboard = [
@@ -51,7 +51,7 @@ class UserCommands:
     await self.update.message.reply_text(f"Listando secrets no namespace {namespace}")
 
     try:
-      secrets = get_secrets(namespace)
+      secrets = kube.get_secrets(namespace)
       for secret in secrets:
         keyboard = [
           [

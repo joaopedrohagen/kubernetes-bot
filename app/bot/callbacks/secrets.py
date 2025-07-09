@@ -1,7 +1,7 @@
 from telegram import CallbackQuery
 from telegram.ext import ContextTypes
 from telegram.helpers import escape_markdown
-from app.services.kubernetes import get_secrets_data
+from app.services.kube_client import kube_client as kube
 from app.bot.exceptions import InvalidCallbackData
 from app.utils.logger import logger
 
@@ -17,7 +17,7 @@ class SecretCommands:
 
   async def secrets(self):
     try:
-      secret = get_secrets_data(name=self.secret_name, namespace=self.namespace)
+      secret = kube.get_secrets_data(name=self.secret_name, namespace=self.namespace)
 
       if secret is None:
         await self.context.bot.send_message(

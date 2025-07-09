@@ -1,7 +1,7 @@
 from telegram import CallbackQuery
 from telegram.ext import ContextTypes
 from telegram.helpers import escape_markdown
-from app.services.kubernetes import delete_pods, pod_logs
+from app.services.kube_client import kube_client as kube
 from app.bot.exceptions import InvalidCallbackData
 from app.utils.logger import logger
 
@@ -17,7 +17,7 @@ class PodCommands:
 
   async def restart(self):
     try:
-      delete_pods(namespace=self.namespace, pod_name=self.pod_name)
+      kube.delete_pods(namespace=self.namespace, pod_name=self.pod_name)
       await self.context.bot.send_message(chat_id=self.chat_id, text=f"🟢 Pod {self.pod_name} reiniciado!", parse_mode="Markdown")
 
     except Exception as e:
@@ -26,7 +26,7 @@ class PodCommands:
 
   async def logs(self):
     try:
-      logs = pod_logs(namespace=self.namespace, pod_name=self.pod_name)
+      logs = kube.pod_logs(namespace=self.namespace, pod_name=self.pod_name)
 
       if logs is None:
         await self.context.bot.send_message(
