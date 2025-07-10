@@ -2,6 +2,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 from app.utils.logger import logger
 from app.bot.callbacks.pods import PodCommands
+from app.bot.callbacks.configmaps import ConfigMapCommands
 from app.bot.callbacks.secrets import SecretCommands
 from app.bot.exceptions import InvalidCallbackData
 
@@ -16,13 +17,6 @@ class Callbacks:
 
     self.chat_id = self.query.message.chat.id
 
-  # @classmethod
-  # async def answer(cls, update: Update, context: ContextTypes.DEFAULT_TYPE):
-  #   self = cls(update, context)
-  #   assert self.query is not None
-  #   await self.query.answer()
-  #   return self
-
   async def callback_button(self):
     assert self.query and self.query.data is not None
 
@@ -31,6 +25,7 @@ class Callbacks:
     try:
       pod_handler = PodCommands(context=self.context, chat_id=self.chat_id, query=self.query)
       secret_handler = SecretCommands(context=self.context, chat_id=self.chat_id, query=self.query)
+      configmap_handler = ConfigMapCommands(context=self.context, chat_id=self.chat_id, query=self.query)
 
       if self.query.data.startswith("restart"):
         await pod_handler.restart()
@@ -40,6 +35,9 @@ class Callbacks:
 
       elif self.query.data.startswith("secrets"):
         await secret_handler.secrets()
+
+      elif self.query.data.startswith("configmaps"):
+        await configmap_handler.configmaps()
 
       else:
         await self.context.bot.send_message(
