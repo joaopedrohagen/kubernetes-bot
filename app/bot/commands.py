@@ -79,7 +79,7 @@ class UserCommands:
     resource = "configmaps"
     func_message = lambda cm: f"ConfigMap: {cm.name}\nNamespace: {cm.ns}"
     buttons = {
-      "configmaps": "ConfigMap 🔐"
+      "configmaps": "ConfigMap ⚙️"
     }
 
     await self._list_resources(resource=resource, resource_list=configmap, func_message=func_message, buttons=buttons)
