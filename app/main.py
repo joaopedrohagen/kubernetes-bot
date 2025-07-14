@@ -20,6 +20,7 @@ def main():
     app.add_handler(CommandHandler("pod_status", lambda update, context: UserCommands(update, context).pod_status()))
     app.add_handler(CommandHandler("list_secrets", lambda update, context: UserCommands(update, context).list_secrets()))
     app.add_handler(CommandHandler("list_configmaps", lambda update, context: UserCommands(update, context).list_config_maps()))
+    app.add_handler(CommandHandler("list_namespaces", lambda update, context: UserCommands(update, context).list_namespaces()))
     app.add_handler(CallbackQueryHandler(lambda update, context: Callbacks(update, context).callback_button()))
 
     app.run_polling()
