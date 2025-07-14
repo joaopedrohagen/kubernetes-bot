@@ -1,6 +1,5 @@
 from types import LambdaType
 from typing import Dict
-from xml.dom.expatbuilder import Namespaces
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from app.services.kube_client import kube_client as kube
