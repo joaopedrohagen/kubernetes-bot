@@ -1,11 +1,12 @@
 from types import LambdaType
 from typing import Dict
+from xml.dom.expatbuilder import Namespaces
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from app.services.kube_client import kube_client as kube
 from app.services.kubernetes import KubeResourceInfo
 from app.utils.logger import logger
-from app.bot.exceptions import MissingMessage, MissingArgs
+from app.bot.exceptions import MissingMessage, MissingArgs, EmptyResourceList
 
 class UserCommands:
   def __init__(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -59,7 +60,10 @@ class UserCommands:
       "logs": "Logs 📄"
     }
 
-    await self._list_resources(resource=resource, resource_list=pods, func_message=func_message, buttons=buttons)
+    if pods:
+      await self._list_resources(resource=resource, resource_list=pods, func_message=func_message, buttons=buttons)
+    else:
+      raise EmptyResourceList("Lista de pods vazia!")
 
 
   async def list_secrets(self):
@@ -71,7 +75,10 @@ class UserCommands:
       "secrets": "Secrets 🔐"
     }
 
-    await self._list_resources(resource=resource, resource_list=secrets, func_message=func_message, buttons=buttons)
+    if secrets:
+      await self._list_resources(resource=resource, resource_list=secrets, func_message=func_message, buttons=buttons)
+    else:
+      raise EmptyResourceList("Lista de secrets vazia!")
 
   async def list_config_maps(self):
     namespace = await self._verify_namespace()
@@ -82,5 +89,16 @@ class UserCommands:
       "configmaps": "ConfigMap ⚙️"
     }
 
-    await self._list_resources(resource=resource, resource_list=configmap, func_message=func_message, buttons=buttons)
+    if configmap:
+      await self._list_resources(resource=resource, resource_list=configmap, func_message=func_message, buttons=buttons)
+    else:
+      raise EmptyResourceList("Lista de configmaps vazia!")
 
+  async def list_namespaces(self):
+    namespaces = kube.get_namespaces()
+
+    if namespaces and self.update.message:
+      namespace_list = "\n".join([ns.name for ns in namespaces])
+      await self.update.message.reply_text(f"🗂️ NAMESPACES:\n{namespace_list}")
+    else:
+      raise EmptyResourceList("Lista de namespaces vazia!")
