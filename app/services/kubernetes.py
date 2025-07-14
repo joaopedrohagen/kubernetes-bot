@@ -3,6 +3,7 @@ from typing import NamedTuple, Any, Optional
 from kubernetes import client, config
 from kubernetes.client import ApiException
 from app.utils.logger import logger
+from app.config.settings import settings
 from base64 import b64decode
 
 class KubeResourceInfo(NamedTuple):
@@ -12,8 +13,8 @@ class KubeResourceInfo(NamedTuple):
     data: Optional[dict[str, str]] = None
 
 class KubernetesClient:
-  def __init__(self, local: bool = True):
-    if local:
+  def __init__(self):
+    if settings.kube_local:
       config.load_config()
       logger.info("Usando kubeconfig local")
     else:
